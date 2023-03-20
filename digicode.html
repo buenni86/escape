@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digicode</title>
+    <style>
+        html {
+            display:table;
+            background-image:linear-gradient(-180deg,#D0D1D2,#A2A3A6);
+            height:100%;
+            width:100%;
+        }
+        body {
+            vertical-align:middle;
+            display:table-cell;
+            user-select: none;
+            -moz-user-select: none;
+            -webkit-user-select: none;
+            -ms-user-select: none;
+        }
+        #box {
+            background:#555;
+            width:350px;
+            height: 500px;
+            padding:90px 30px;
+            margin:0 auto;
+            text-align:center;
+            border-radius:30px;
+            background-image: linear-gradient(-40deg,#222,transparent,#111), linear-gradient(40deg,#222,transparent,#111), linear-gradient(-40deg,#222,transparent,#111), linear-gradient(40deg,#222,transparent,#111) ;
+            box-shadow:1px 2px 3px 2px #000, 0 0 5px 5px #333, 0 0 7px 7px #999, 0 0 0px 9px #555, 0 0 1px 11px #000, 120px 400px 400px -100px white;
+            background-size:50% 80%;
+            background-position:center;
+        }
+        #buttons {
+            margin-top: 15px;
+        }
+        a {
+            transition:0.1s;
+            display:inline-block;
+            height:70px;
+            width:70px;
+            margin:20px;
+            vertical-align:top;
+            text-align:center;
+            border:1px solid rgba(0,0,0,0.72);
+            border-radius:70px;
+            background:#454545;
+            color:white;
+            text-decoration:none;
+            font-family:helvetica;
+            font-weight:bold;
+            line-height:50px;
+            font-size:35px;
+            text-shadow:0 0 2px white;
+            overflow:hidden;
+            background-image:linear-gradient(-90deg,#222,#444);
+            position:relative;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.75), 0 0 15px rgba(0,0,0,1), 0 0 1px 3px rgba(0,0,0,0.5), 0 -4px 5px rgba(255,255,255,0.5), inset 0 -2px 3px #555, inset 0 -4px 5px #000, inset 0 0 3px #000, inset 0 20px 15px rgba(255,255,255,0.05);
+        }
+        a:active {
+            transition:0.1s;
+            outline:0;
+            text-shadow:0 0 2px black, 0 0 2px white;
+            height:65px;
+            padding-top:5px;
+            background-image:linear-gradient(-90deg,#444,#222);
+        }
+        a:hover, a:focus {
+            cursor: pointer;
+            box-shadow: 0 -5px 10px rgba(0,0,0,0.75), 0 0 15px rgba(0,0,0,1), 0 0 1px 3px rgba(0,0,0,0.5), 0 4px 5px rgba(255,255,255,0.5), inset 0 2px 3px #555, inset 0 4px 5px #000, inset 0 0 3px #000, inset 0 -20px 15px rgba(255,255,255,0.05);
+        }
+        a span {
+            font-size:14px;
+            text-transform:uppercase;
+            display:block;
+            text-align:center;
+            line-height:0em;
+            margin-top:-5px;
+            font-style:italic;
+        }
+        .scaledigit {
+            font-size:3em;
+        }
+
+        #led-box {
+            position: relative;
+            top: -70px;
+            margin: 0 auto;
+        }
+        .led-blue {
+            margin: 0 auto;
+            width: 24px;
+            height: 24px;
+            background-color: #24E0FF;
+            border-radius: 50%;
+            box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #006 0 -1px 9px, #3F8CFF 0 2px 14px;
+        }
+        .led-red {
+            margin: 0 auto;
+            width: 24px;
+            height: 24px;
+            background-color: #F00;
+            border-radius: 50%;
+            box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #441313 0 -1px 9px, rgba(255, 0, 0, 0.5) 0 2px 12px;
+        }
+        .led-green {
+            margin: 0 auto;
+            width: 24px;
+            height: 24px;
+            background-color: #ABFF00;
+            border-radius: 50%;
+            box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px;
+        }
+        #user-code-container {
+            margin: 0 auto;
+            height:50px;
+            width:350px;
+            text-align:center;
+            color:white;
+            font-family:helvetica;
+            font-weight:bold;
+            line-height:50px;
+            font-size:35px;
+            text-shadow:0 0 2px white;
+            margin-top: -30px;
+            overflow: hidden;
+        }
+        #user-code {
+            margin: 0;
+        }
+        .logo {
+            margin-top: 32px;
+        }
+        .logo img {
+            height: 40px;
+        }
+    </style>
+    <script src="https://play.workadventu.re/iframe_api.js"></script>
+    <script>
+        /// <reference path="../node_modules/@workadventure/iframe-api-typings/iframe_api.d.ts" />
+
+        let userCode = ""
+        let currentPopup = undefined;
+
+        window.onload = () => {
+            let zero = document.querySelector("a[tabindex='0']")
+            let one = document.querySelector("a[tabindex='1']")
+            let two = document.querySelector("a[tabindex='2']")
+            let three = document.querySelector("a[tabindex='3']")
+            let four = document.querySelector("a[tabindex='4']")
+            let five = document.querySelector("a[tabindex='5']")
+            let six = document.querySelector("a[tabindex='6']")
+            let seven = document.querySelector("a[tabindex='7']")
+            let eight = document.querySelector("a[tabindex='8']")
+            let nine = document.querySelector("a[tabindex='9']")
+            let clear = document.querySelector("a[tabindex='10']")
+            let enter = document.querySelector("a[tabindex='11']")
+
+            zero.addEventListener("click", () => {addDigit("0")})
+            one.addEventListener("click", () => {addDigit("1")})
+            two.addEventListener("click", () => {addDigit("2")})
+            three.addEventListener("click", () => {addDigit("3")})
+            four.addEventListener("click", () => {addDigit("4")})
+            five.addEventListener("click", () => {addDigit("5")})
+            six.addEventListener("click", () => {addDigit("6")})
+            seven.addEventListener("click", () => {addDigit("7")})
+            eight.addEventListener("click", () => {addDigit("8")})
+            nine.addEventListener("click", () => {addDigit("9")})
+            clear.addEventListener("click", pressClear)
+            enter.addEventListener("click", pressEnter)
+        }
+
+        function addDigit(digit) {
+            userCode += digit
+            document.getElementById("user-code").innerText = userCode
+        }
+
+        function pressClear() {
+            userCode = ""
+            document.getElementById("user-code").innerText = userCode
+            document.getElementById("led").className = "led-blue"
+        }
+
+        function pressEnter() {
+            if (userCode === "8153") {
+                WA.state.TrainStarted = true
+                document.getElementById("led").className = "led-green"
+                currentPopup = WA.ui.openPopup("driverCabinePopup", "You have entered the correct combination. The train can start.", [])
+
+                setTimeout(() => {
+                    closePopup()
+                }, 5000)
+            } else {
+                document.getElementById("led").className = "led-red"
+            }
+        }
+
+        function closePopup(){
+            if (currentPopup !== undefined) {
+                currentPopup.close()
+                currentPopup = undefined;
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="p3d">
+        <div id="box">
+            <div id="led-box">
+                <div id="led" class="led-blue"></div>
+            </div>
+
+            <div id="user-code-container">
+                <p id="user-code"></p>
+            </div>
+
+            <div id="buttons">
+                <a role="button" tabindex="1">1</a>
+                <a role="button" tabindex="2">2<span>abc</span></a>
+                <a role="button" tabindex="3">3<span>def</span></a>
+                <a role="button" tabindex="4">4<span>ghi</span></a>
+                <a role="button" tabindex="5">5<span>jkl</span></a>
+                <a role="button" tabindex="6">6<span>mno</span></a>
+                <a role="button" tabindex="7">7<span>pqrs</span></a>
+                <a role="button" tabindex="8">8<span>tuv</span></a>
+                <a role="button" tabindex="9">9<span>wxyz</span></a>
+                <a role="button" tabindex="10" class="scaledigit">&#42;<span>CLEAR</span></a>
+                <a role="button" tabindex="0">0</a>
+                <a role="button" tabindex="11">&#35;<span>ENTER</span></a>
+            </div>
+
+            <div class="logo">
+                <img src="WA_Logo.png" alt="FestAdventure logo">
+            </div>
+        </div>
+    </div>
+</body>
+</html>
