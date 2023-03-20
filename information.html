@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Information</title>
+    <link rel="stylesheet" href="./information.css">
+    <script src="https://play.workadventu.re/iframe_api.js"></script>
+</head>
+<body>
+    <div id="container">
+        <div id="timer">--:--</div>
+        <img id="icon" draggable="false" src="caret-down-icon.svg" alt="Down">
+        <div id="information"></div>
+    </div>
+
+    <script>
+        /// <reference path="../node_modules/@workadventure/iframe-api-typings/iframe_api.d.ts" />
+        console.log('Information UI Website started successfully')
+
+        WA.onInit().then(() => {
+            const containerElement = document.getElementById("container")
+            const timerElement = document.getElementById("timer")
+            const informationElement = document.querySelector("#information")
+
+            let time = WA.state.EscapeGameTimer ? WA.state.EscapeGameTimer : 1200 // 1200 seconds = 20 minutes
+            let htmlContent = ""
+            
+            const timer = setInterval(() => {
+                if (WA.state.GameStarted) {
+                    time --
+
+                    if (time === 0) {
+                        clearInterval(timer)
+                        WA.controls.disablePlayerControls()
+                        timerElement.style.color = "#EC0016"
+                        timerElement.innerText = "GAME OVER"
+                        WA.chat.sendChatMessage("GAME OVER. You have exceeded the time allowed to finish the game.", "KindRobot000")
+                        return
+                    }
+
+                    let minutes = parseInt(time / 60, 10)
+                    let secondes = parseInt(time % 60, 10)
+
+                    minutes = minutes < 10 ? "0" + minutes : minutes
+                    secondes = secondes < 10 ? "0" + secondes : secondes
+                    
+                    timerElement.innerText = `${minutes}:${secondes}`
+                }
+            }, 1000)
+
+            const sync = setInterval(() => {
+                if (WA.state.GameStarted) {
+                    WA.state.EscapeGameTimer = time
+                    if (time === 0) {
+                        clearInterval(sync)
+                    }
+                }
+            }, 3000)
+
+            containerElement.addEventListener('mouseover', () => {
+                containerElement.classList.add("open")
+                informationElement.classList.add("open")
+            })
+            containerElement.addEventListener('mouseleave', () => {
+                containerElement.classList.remove("open")
+                informationElement.classList.remove("open")
+            })
+
+            function addInfo(info) {
+                htmlContent += info
+                informationElement.innerHTML = htmlContent
+                time -= 60 // 1 minute penalty
+
+                containerElement.classList.add("open")
+                informationElement.classList.add("open")
+                setTimeout(() => {
+                    containerElement.classList.remove("open")
+                    informationElement.classList.remove("open")
+                }, 5000)
+            }
+
+            const QuestionReady = WA.state.onVariableChange('QuestionReady').subscribe((value) => {
+                // Send a global message
+                if (value === true) {
+                    htmlContent = ""
+                    addInfo("Mr Robot: Listen carefully, discuss with your team and answer my riddle: "
+                        + "19 people get off a train at the first stop and 17 get on. 63 people are now on the train. "
+                        + "At the second station, 10 people get on. "
+                        + "How many persons were on the train from the beginning? "
+                        + "In order to hear your answer you need to be close to me.")
+                    QuestionReady.unsubscribe()
+                }
+            })
+
+            const TrainDoorOpen = WA.state.onVariableChange('TrainDoorOpen').subscribe((value) => {
+                // Clear the clues from room 1 to troom 2
+                if (value === true) {
+                    htmlContent = ""
+                    informationElement.innerHTML = htmlContent
+                    TrainDoorOpen.unsubscribe()
+                }
+            })
+
+            const TrainStarted = WA.state.onVariableChange('TrainStarted').subscribe((value) => {
+                // Clear the clues from room 2 to troom 3
+                if (value === true) {
+                    htmlContent = ""
+                    informationElement.innerHTML = htmlContent
+                    TrainStarted.unsubscribe()
+                }
+            })
+
+            const Room1Clue1 = WA.state.onVariableChange('Room1Clue1').subscribe((value) => {
+                if (value === true) {
+                    addInfo("<p>Clue 1/3: More information about this room can be found at the reception located at the north of the map.</p>")
+                    Room1Clue1.unsubscribe()
+                }
+            })
+
+            const Room1Clue2 = WA.state.onVariableChange('Room1Clue2').subscribe((value) => {
+                if (value === true) {
+                    addInfo("<p>Clue 2/3: 3 riddles have to be solved in order to open the train door. Know that you can talk to robots...</p>")
+                    Room1Clue2.unsubscribe()
+                }
+            })
+
+            const Room1Clue3 = WA.state.onVariableChange('Room1Clue3').subscribe((value) => {
+                if (value === true) {
+                    addInfo("<p>Clue 3/3: The Tic-Tac-Toe game... The cigarette on the floor... The final question...</p><br>")
+                    Room1Clue3.unsubscribe()
+                }
+            })
+
+            const Room2Clue1 = WA.state.onVariableChange('Room2Clue1').subscribe((value) => {
+                if (value === true) {
+                    addInfo("<p>Clue 1/3: The train has to be started. A computer should help you if you find the right code.</p>")
+                    Room2Clue1.unsubscribe()
+                }
+            })
+
+            const Room2Clue2 = WA.state.onVariableChange('Room2Clue2').subscribe((value) => {
+                if (value === true) {
+                    addInfo("<p>Clue 2/3: Find the 4 hidden items.</p>")
+                    Room2Clue2.unsubscribe()
+                }
+            })
+
+            const Room2Clue3 = WA.state.onVariableChange('Room2Clue3').subscribe((value) => {
+                if (value === true) {
+                    addInfo("<p>Clue 3/3: Each item corresponds to a digit of the code. Check the magazines...</p><br>")
+                    Room2Clue3.unsubscribe()
+                }
+            })
+
+            const Room3Clue1 = WA.state.onVariableChange('Room3Clue1').subscribe((value) => {
+                if (value === true) {
+                    addInfo("<p>Clue 1/3: Max Maulwurf has something to say.</p>")
+                    Room3Clue1.unsubscribe()
+                }
+            })
+
+            const Room3Clue2 = WA.state.onVariableChange('Room3Clue2').subscribe((value) => {
+                if (value === true) {
+                    addInfo("<p>Clue 2/3: Find the hidden items.</p>")
+                    Room3Clue2.unsubscribe()
+                }
+            })
+
+            const Room3Clue3 = WA.state.onVariableChange('Room3Clue3').subscribe((value) => {
+                if (value === true) {
+                    addInfo("<p>Clue 3/3: The DB trophy... The WorkAdventure mug... Max's hat...</p>")
+                    Room3Clue3.unsubscribe()
+                }
+            })
+
+            const powerRestarted = WA.state.onVariableChange('powerRestarted').subscribe((value) => {
+                if (value === true) {
+                    clearInterval(timer)
+                    timerElement.style.color = "#B8BB26"
+                    document.getElementById("icon").remove()
+                    powerRestarted.unsubscribe()
+                }
+            })
+        })
+    </script>
+</body>
+</html>
